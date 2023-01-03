@@ -1,4 +1,4 @@
-IMAGE?=my/awesome-extension
+IMAGE?=docker/database-extension
 TAG?=latest
 
 BUILDER=buildx-multi-arch

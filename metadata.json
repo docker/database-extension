@@ -1,14 +1,8 @@
 {
   "icon": "docker.svg",
-  "vm": {
-    "composefile": "docker-compose.yaml",
-    "exposes": {
-      "socket": "backend.sock"
-    }
-  },
   "ui": {
     "dashboard-tab": {
-      "title": "My Extension",
+      "title": "Databases",
       "src": "index.html",
       "root": "ui",
       "backend": {

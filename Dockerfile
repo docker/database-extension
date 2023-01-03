@@ -1,31 +1,22 @@
-FROM golang:1.19-alpine AS builder
-ENV CGO_ENABLED=0
-WORKDIR /backend
-COPY backend/go.* .
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    go mod download
-COPY backend/. .
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    go build -trimpath -ldflags="-s -w" -o bin/service
-
 FROM --platform=$BUILDPLATFORM node:18.12-alpine3.16 AS client-builder
 WORKDIR /ui
 # cache packages in layer
 COPY ui/package.json /ui/package.json
-COPY ui/package-lock.json /ui/package-lock.json
+COPY ui/.yarnrc.yml /ui/.yarnrc.yml
+COPY ui/.yarn /ui/.yarn
+COPY ui/yarn.lock /ui/yarn.lock
+RUN echo "cacheFolder: '/usr/src/app/.npm'" >> /ui/.yarnrc.yml
 RUN --mount=type=cache,target=/usr/src/app/.npm \
-    npm set cache /usr/src/app/.npm && \
-    npm ci
+    yarn install --immutable
+
 # install
 COPY ui /ui
-RUN npm run build
+RUN yarn build
 
 FROM alpine
-LABEL org.opencontainers.image.title="My extension" \
-    org.opencontainers.image.description="My awesome Docker extension" \
-    org.opencontainers.image.vendor="Awesome Inc." \
+LABEL org.opencontainers.image.title="Databases" \
+    org.opencontainers.image.description="Databases extension allows you to have a look at the content of all your databases running in a container." \
+    org.opencontainers.image.vendor="Docker Inc." \
     com.docker.desktop.extension.api.version="0.3.2" \
     com.docker.extension.screenshots="" \
     com.docker.extension.detailed-description="" \
@@ -33,9 +24,6 @@ LABEL org.opencontainers.image.title="My extension" \
     com.docker.extension.additional-urls="" \
     com.docker.extension.changelog=""
 
-COPY --from=builder /backend/bin/service /
-COPY docker-compose.yaml .
 COPY metadata.json .
 COPY docker.svg .
 COPY --from=client-builder /ui/build ui
-CMD /service -socket /run/guest-services/backend.sock
