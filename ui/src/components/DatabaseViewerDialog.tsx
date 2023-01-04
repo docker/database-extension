@@ -89,7 +89,16 @@ export default function DatabaseViewerDialog(props: Props) {
 
   return (
     <div>
-      <Dialog {...dialogProps}>
+      <Dialog {...dialogProps} sx={{
+        "& .MuiDialog-paper": {
+          border: 0,
+          backgroundColor: (theme) => theme.palette.background.default,
+        },
+        "& .MuiToolbar-root": {
+          backgroundColor: (theme) => theme.palette.background.default,
+          border: 0,
+        }
+      }}>
         <AppBar sx={{ position: "relative" }}>
           <Toolbar>
             <IconButton
@@ -109,7 +118,9 @@ export default function DatabaseViewerDialog(props: Props) {
             <IconButton
               edge="start"
               color="inherit"
-              onClick={() => getDBTables()}
+              onClick={() => {
+                getDBTables();
+              }}
               aria-label="sync"
             >
               <Sync
@@ -141,26 +152,27 @@ export default function DatabaseViewerDialog(props: Props) {
             height: "100%",
           }}
         >
-          <Grid container spacing={3} height="100%">
-            <Grid item xs>
+          <Grid container gap={3} height="100%">
+            <Grid item xs sx={{
+              paddingY: 1,
+              background: (theme) => theme.palette.background.paper,
+            }}>
               <Box>
                 <TreeView
                   aria-label="file system navigator"
                   defaultCollapseIcon={<Storage />}
                   defaultExpandIcon={<Storage />}
+                  defaultEndIcon={<Storage />}
                   multiSelect={false}
                   onNodeSelect={handleOpenTable}
                 >
-                  {tables.map((table, key) => (
-                    <React.Fragment key={key}>
-                      <TreeItem nodeId={table} label={table} />
-                      {key < tables.length - 1 && <Divider />}
-                    </React.Fragment>
+                  {tables.map((table) => (
+                      <TreeItem key={table} nodeId={table} label={table} sx={{paddingY: 0.5}}/>
                   ))}
                 </TreeView>
               </Box>
             </Grid>
-            <Grid item xs={9}>
+            <Grid xs={9}>
               <>
                 {tabs.length === 0 && <NoRowsOverlay />}
                 {tabs.length > 0 && (
@@ -182,13 +194,23 @@ export default function DatabaseViewerDialog(props: Props) {
                             iconPosition="end"
                             label={tab.name}
                             value={tab.table}
+                            sx={{
+                              minHeight: 0,
+                            }}
                           />
                         ))}
                       </TabList>
                     </Box>
                     {tabs.map((tab, key) => (
-                      <TabPanel value={tab.name} key={key}>
-                        <DBDataGrid />
+                      <TabPanel
+                        value={tab.name}
+                        key={key}
+                        sx={{
+                          height: "92%",
+                          padding: 0,
+                        }}
+                      >
+                        <DBDataGrid database={database} table={tab.name} />
                       </TabPanel>
                     ))}
                   </TabContext>
