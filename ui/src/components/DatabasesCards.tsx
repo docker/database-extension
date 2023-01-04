@@ -3,9 +3,9 @@ import { TransitionProps } from "@mui/material/transitions";
 import * as React from "react";
 import { useCurrentDatabaseContext } from "../CurrentDatabaseContext";
 import { useGetDatabaseConnections } from "../hooks/useGetDatabaseConnections";
+import { AddNewDatabaseCard } from "./AddNewDatabaseCard";
 import { DatabaseCard } from "./DatabaseCard";
 import DatabaseViewerDialog from "./DatabaseViewerDialog";
-import { NewDatabaseButton } from "./NewDatabaseButton";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -31,7 +31,7 @@ export const DatabasesCards = () => {
       {databases.map((database) => (
         <DatabaseCard key={database.id} database={database} />
       ))}
-      <NewDatabaseButton />
+      <AddNewDatabaseCard />
       { currentDatabase && (
         <DatabaseViewerDialog
           database={currentDatabase}

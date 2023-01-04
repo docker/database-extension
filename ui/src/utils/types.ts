@@ -3,6 +3,7 @@ export interface IDBConnection {
   name: string;
   connectionString: string;
   image: string;
+  connected?: boolean;
 }
 
 export interface IDatabaseProvider {
