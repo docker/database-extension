@@ -83,12 +83,23 @@ export const NewDatabaseDialog = (props: DialogProps) => {
   }
 
   const handleCreateDatabase = async () => {
-    const { image } = officialDBs.find((db) => db.id === provider);
+    const { image, defaults } = officialDBs.find((db) => db.id === provider);
+
+    let envs = [];
+    const values = { password, username, database }
+    if (defaults.envs) {
+      for (const key in defaults.envs) {
+        const value = defaults.envs[key];
+        const variableName = value.replaceAll("%", "");
+        const resolvedValue = values[variableName];
+        envs.push("-e", `${key}=${resolvedValue}`);
+      }
+    }
 
     setCreatingContainer(true);
     let containerID = "";
     try {
-      const result = await ddClient.docker.cli.exec("run", ["-d", "-p", port, image]);
+      const result = await ddClient.docker.cli.exec("run", ["-d", "-p", port, ...envs, image]);
       containerID = result.stdout.trim();
     } catch (e) {
       console.log(e)

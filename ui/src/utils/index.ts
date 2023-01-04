@@ -21,6 +21,11 @@ export const officialDBs: IDatabaseProvider[] = [
       username: "postgres",
       database: "postgres",
       password: "mysecretpassword",
+      envs: {
+        POSTGRES_PASSWORD: "%password%",
+        POSTGRES_USER: "%username%",
+        POSTGRES_DB: "%database%",
+      }
     }
   },
   {
@@ -32,6 +37,11 @@ export const officialDBs: IDatabaseProvider[] = [
       username: "root",
       database: "default",
       password: "mysecretpassword",
+      envs: {
+        MYSQL_ROOT_PASSWORD: "%password%",
+        MYSQL_DATABASE: "%database%",
+        MYSQL_USER: "%username%",
+      }
     }
   },
   {
@@ -43,6 +53,11 @@ export const officialDBs: IDatabaseProvider[] = [
       username: "root",
       database: "default",
       password: "mysecretpassword",
+      envs: {
+        MARIADB_ROOT_PASSWORD: "%password%",
+        MARIADB_DATABASE: "%database%",
+        MARIADB_USER: "%username%",
+      }
     }
   },
 ]

@@ -15,6 +15,7 @@ export interface IDatabaseProvider {
     username: string;
     password?: string;
     database: string;
+    envs?: { [id: string]: string };
   }
 }
 
