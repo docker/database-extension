@@ -4,10 +4,28 @@
     "dashboard-tab": {
       "title": "Databases",
       "src": "index.html",
-      "root": "ui",
-      "backend": {
-        "socket": "backend.sock"
-      }
+      "root": "ui"
     }
+  },
+  "host": {
+    "binaries": [
+      {
+        "darwin": [
+          {
+            "path": "/host/darwin/usql"
+          }
+        ],
+        "linux": [
+          {
+            "path": "/host/linux/usql"
+          }
+        ],
+        "windows": [
+          {
+            "path": "/host/windows/usql.exe"
+          }
+        ]
+      }
+    ]
   }
 }

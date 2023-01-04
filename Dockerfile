@@ -1,17 +1,48 @@
+#syntax=docker/dockerfile:1
+
 FROM --platform=$BUILDPLATFORM node:18.12-alpine3.16 AS client-builder
+
 WORKDIR /ui
 # cache packages in layer
 COPY ui/package.json /ui/package.json
-COPY ui/.yarnrc.yml /ui/.yarnrc.yml
-COPY ui/.yarn /ui/.yarn
-COPY ui/yarn.lock /ui/yarn.lock
-RUN echo "cacheFolder: '/usr/src/app/.npm'" >> /ui/.yarnrc.yml
+COPY ui/package-lock.json /ui/package-lock.json
 RUN --mount=type=cache,target=/usr/src/app/.npm \
-    yarn install --immutable
+    npm set cache /usr/src/app/.npm && \
+    npm ci
 
 # install
 COPY ui /ui
-RUN yarn build
+RUN npm run build
+
+FROM alpine AS dl
+WORKDIR /tmp
+RUN apk add --no-cache curl tar
+ARG TARGETARCH
+ARG USQL_VERSION=0.13.4
+ARG USQL_RELEASE_URL="https://github.com/xo/usql/releases/download/v${USQL_VERSION}/usql-${USQL_VERSION}"
+RUN <<EOT ash
+    mkdir -p /out/darwin
+    curl -fSsLo /out/darwin/usql.tar.bz2 "${USQL_RELEASE_URL}-darwin-${TARGETARCH}.tar.bz2"
+    tar -xf /out/darwin/usql.tar.bz2 -C /out/darwin
+    chmod a+x /out/darwin/usql
+EOT
+RUN <<EOT ash
+    if [ "amd64" = "$TARGETARCH" ]; then
+        mkdir -p /out/linux
+        curl -fSsLo /out/linux/usql.tar.bz2 "${USQL_RELEASE_URL}-linux-${TARGETARCH}.tar.bz2"
+        tar -xf /out/linux/usql.tar.bz2 -C /out/linux
+        chmod a+x /out/linux/usql
+    fi
+EOT
+RUN <<EOT ash
+    if [ "amd64" = "$TARGETARCH" ]; then
+        mkdir -p /out/windows
+        curl -fSsLo /out/windows/usql.tar.bz2 "${USQL_RELEASE_URL}-windows-${TARGETARCH}.tar.bz2"
+        tar -xf /out/windows/usql.tar.bz2 -C /out/windows
+        chmod a+x /out/windows/usql
+    fi
+EOT
+
 
 FROM alpine
 LABEL org.opencontainers.image.title="Databases" \
@@ -27,3 +58,4 @@ LABEL org.opencontainers.image.title="Databases" \
 COPY metadata.json .
 COPY docker.svg .
 COPY --from=client-builder /ui/build ui
+COPY --from=dl /out /host
