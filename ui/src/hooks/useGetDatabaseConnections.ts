@@ -43,14 +43,14 @@ export const useGetDatabaseConnections = () => {
 };
 
 const getDefaultConnectionStringFromImage = (image: string) => {
-  switch (image) {
-    case "postgres":
+  switch (true) {
+    case image == "postgres":
       return "pg://postgres:mysecretpassword@localhost:5432/postgres?sslmode=disable";
-    case "mysql":
+    case image == "mysql":
       return "mysql://root:mysecretpassword@localhost:3306";
-    case "mariadb":
+    case image == "mariadb":
       return "mysql://root:mysecretpassword@localhost:3306";
-    case "clickhouse":
+    case image.includes("clickhouse"):
       return "ch://localhost:19000?username=default";
     default:
       return null;

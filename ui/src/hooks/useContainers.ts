@@ -51,6 +51,25 @@ interface Label {
   value: string;
 }
 
+export enum EventStatus {
+  START = 'start',
+  DESTROY = 'destroy',
+  STOP = 'stop',
+  DIE = 'die',
+  KILL = 'kill',
+}
+
+export interface Event {
+  status: EventStatus;
+  id: string;
+  from: string;
+  Actor: {
+    Attributes: {
+      [key: string]: string;
+    };
+  };
+}
+
 const ddClient = createDockerDesktopClient();
 
 export function useContainers() {
@@ -102,6 +121,58 @@ export function useContainers() {
 
   useEffect(() => {
     containers();
+  }, []);
+
+  useEffect(() => {
+    const process = ddClient.docker.cli.exec(
+      'events',
+      [
+        '--filter',
+        'type=container',
+        '--filter',
+        'event=start',
+        '--filter',
+        'event=stop',
+        '--filter',
+        'event=kill',
+        '--filter',
+        'event=die',
+        '--filter',
+        'event=destroy',
+        '--format',
+        '{{json .}}',
+      ],
+      {
+        stream: {
+          splitOutputLines: true,
+          async onOutput(data) {
+            const event = JSON.parse(data.stdout ?? data.stderr) as Event;
+
+            if (!event) {
+              return;
+            }
+
+            switch (event.status) {
+              case EventStatus.START:
+              case EventStatus.STOP:
+              case EventStatus.DIE:
+              case EventStatus.KILL:
+              case EventStatus.DESTROY: {
+                containers();
+                break;
+              }
+              default: {
+                break;
+              }
+            }
+          },
+        },
+      },
+    );
+
+    return () => {
+      process.close();
+    };
   }, []);
 
   return { containers, isLoading, data };

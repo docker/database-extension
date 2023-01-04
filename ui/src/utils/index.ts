@@ -1,6 +1,7 @@
 export const isOfficialDB = (image: string) => {
   console.log("is official", image);
   return (
+    image.startsWith("clickhouse") ||
     image.startsWith("postgres") ||
     image.startsWith("mysql") ||
     image.startsWith("mariadb") ||
