@@ -1,5 +1,6 @@
 import { createDockerDesktopClient } from "@docker/extension-api-client";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
+import { getConnectionString, wait } from "../utils";
 import { IDBConnection } from "../utils/types";
 
 const ddClient = createDockerDesktopClient();
@@ -11,8 +12,9 @@ export const useTestConnection = (database: IDBConnection) => {
   const testConnection = async () => {
     setLoading(true);
     try {
+      await wait(1000);
       const result = await ddClient.extension.host!.cli.exec("usql", [
-        database.connectionString,
+        getConnectionString(database.image, database.connection) || '',
         "-J", // json output
         "-q", // quiet, do not print connection string
         "-c", // execute the command
@@ -37,7 +39,7 @@ export const useTestConnection = (database: IDBConnection) => {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     testConnection();
   }, []);
 

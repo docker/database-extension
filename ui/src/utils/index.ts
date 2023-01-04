@@ -86,12 +86,23 @@ export const getFromLocalStorage = (key: string) => {
   }
 };
 
-export const setToLocalStorage = (key: string, value: string) => {
+export const setToLocalStorage = (key: string, value: any) => {
   if (typeof window === "undefined") {
     return;
   }
 
   window.localStorage.setItem(key, JSON.stringify(value));
+};
+
+
+export const getDefaultConnectionFromImage = (image: string) => {
+  if (!isOfficialDB(image)) {
+    throw new Error(`Unsupported database ${image}`);
+  }
+  const foundDB = officialDBs.find((db) => image === db.image);
+  if (!foundDB) return;
+
+  return foundDB.defaults;
 };
 
 export const getDefaultConnectionStringFromImage = (image: string) => {
@@ -103,7 +114,6 @@ export const getDefaultConnectionStringFromImage = (image: string) => {
 
   const { id, defaults } = foundDB;
 
-  // @ts-expect-error type this
   return getConnectionString(id, defaults);
 };
 export const getConnectionString = (
@@ -133,3 +143,5 @@ export const getConnectionString = (
       return "ch://localhost:19000?username=default";
   }
 };
+
+export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

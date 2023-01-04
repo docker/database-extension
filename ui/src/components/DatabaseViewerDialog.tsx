@@ -112,7 +112,7 @@ export default function DatabaseViewerDialog(props: Props) {
               <ArrowBack />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              {database.name}
+              {database.containerName}
             </Typography>
             <Box sx={{ flexGrow: 1 }} />
             <IconButton

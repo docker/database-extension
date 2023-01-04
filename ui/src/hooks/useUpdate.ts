@@ -1,4 +1,5 @@
 import { createDockerDesktopClient } from "@docker/extension-api-client";
+import { getConnectionString } from "../utils";
 import { IDBConnection } from "../utils/types";
 
 const ddClient = createDockerDesktopClient();
@@ -11,7 +12,7 @@ export const useUpdate = (database: IDBConnection, table: string) => {
   ) => {
     try {
       const result = await ddClient.extension.host!.cli.exec("usql", [
-        database.connectionString,
+        getConnectionString(database.image, database.connection) || '',
         "-J", // json output
         "-q", // quiet, do not print connection string
         "-c", // execute the command

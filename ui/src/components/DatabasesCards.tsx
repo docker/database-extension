@@ -29,7 +29,7 @@ export const DatabasesCards = () => {
         paddingX: { xs: 2, sm: 4, md: 8, lg: 12, xl: 16}
     }}>
       {databases.map((database) => (
-        <DatabaseCard key={database.id} database={database} />
+        <DatabaseCard key={database.containerId} database={database} />
       ))}
       <AddNewDatabaseCard />
       { currentDatabase && (

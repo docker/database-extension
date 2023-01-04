@@ -1,5 +1,6 @@
 import { createDockerDesktopClient } from "@docker/extension-api-client";
 import { useState } from "react";
+import { getConnectionString } from "../utils";
 import { IDBConnection } from "../utils/types";
 
 const ddClient = createDockerDesktopClient();
@@ -18,13 +19,12 @@ export const useGetDatabaseTables = (database: IDBConnection) => {
     setLoading(true);
     try {
       const result = await ddClient.extension.host!.cli.exec("usql", [
-        database.connectionString,
+        getConnectionString(database.image, database.connection) || '',
         "-J", // json output
         "-q", // quiet, do not print connection string
         "-c", // execute the command[
         "'\\dt'",
       ]);
-      console.log(result)
       const tables = result.parseJsonObject() as Table[];
       setTables(tables.map((table) => table.Name));
     } catch (err) {

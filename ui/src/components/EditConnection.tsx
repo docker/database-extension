@@ -17,29 +17,30 @@ import {
 import { Add } from "@mui/icons-material";
 import React from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import { officialDBs, setToLocalStorage } from "../utils";
+import { getConnectionString, officialDBs, setToLocalStorage } from "../utils";
 import { IConnection, IDBConnection } from "../utils/types";
 
 const ddClient = createDockerDesktopClient();
 
-export const NewDatabaseDialog = (props: DialogProps) => {
+interface EditDatabaseDialogProps extends DialogProps {
+  database: IDBConnection;
+}
+
+export const EditDatabaseDialog = (props: EditDatabaseDialogProps) => {
   // TODO: remove this as soon as the icon button colors are fixed in the design system
   const useDarkTheme = useMediaQuery("(prefers-color-scheme: dark)");
 
   const { onClose, ...other } = props;
 
-  // const [_, setValue] = useLocalStorage("connexions", []);
-  const [provider, setProvider] = React.useState("");
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [port, setPort] = React.useState("");
-  const [database, setDatabase] = React.useState("");
+  const [username, setUsername] = React.useState(props.database.connection.username);
+  const [password, setPassword] = React.useState(props.database.connection.password);
+  const [port, setPort] = React.useState(props.database.connection.port);
+  const [database, setDatabase] = React.useState(props.database.connection.database);
   const [creatingContainer, setCreatingContainer] = React.useState(false);
   const [isValid, setIsValid] = React.useState(false);
   const [error, setError] = React.useState("");
 
   const resetForm = () => {
-    setProvider("");
     setUsername("");
     setPassword("");
     setPort("");
@@ -51,22 +52,9 @@ export const NewDatabaseDialog = (props: DialogProps) => {
     onClose?.({}, "escapeKeyDown");
   };
 
-  const handleChangeProvider = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const provider = event.target.value as string;
-    setProvider(provider);
-    const foundProvider = officialDBs.find((db) => db.id === provider);
-    if (foundProvider) {
-      setDatabase(foundProvider.defaults.database);
-      setPort(foundProvider.defaults.port);
-      setUsername(foundProvider.defaults.username);
-      setPassword(foundProvider.defaults.password || "");
-      setIsValid(true);
-    }
-  };
-
   const handleChangeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value as string);
-    setIsValid(Boolean(provider && username && port && database));
+    setIsValid(Boolean(username && port && database));
   };
 
   const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,16 +64,18 @@ export const NewDatabaseDialog = (props: DialogProps) => {
   const handleChangePort = (event: React.ChangeEvent<HTMLInputElement>) => {
     // TODO: check port availability
     setPort(event.target.value as string);
-    setIsValid(Boolean(provider && username && port && database));
+    setIsValid(Boolean(username && port && database));
   };
 
   const handleChangeDatabase = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDatabase(event.target.value as string);
-    setIsValid(Boolean(provider && username && port && database));
+    setIsValid(Boolean(username && port && database));
   };
 
   const handleCreateDatabase = async () => {
-    const foundDB = officialDBs.find((db) => db.id === provider);
+    const foundDB = officialDBs.find(
+      (db) => db.id === props.database.containerId
+    );
     if (!foundDB) return;
 
     const { image, defaults } = foundDB;
@@ -121,6 +111,15 @@ export const NewDatabaseDialog = (props: DialogProps) => {
       return;
     }
 
+    const connectionString = getConnectionString(props.database.image, {
+      password,
+      username,
+      database,
+      port: port.split(":")[0],
+    });
+
+    if (!connectionString) return;
+
     let name = "";
     try {
       const result = await ddClient.docker.cli.exec("inspect", [
@@ -153,31 +152,6 @@ export const NewDatabaseDialog = (props: DialogProps) => {
       <DialogTitle>Create a new database</DialogTitle>
       <DialogContent>
         <Stack gap={1.5} mt={2}>
-          <TextField
-            select
-            // label="database-label"
-            id="provider"
-            value={provider}
-            label="Select a database type"
-            onChange={handleChangeProvider}
-          >
-            {officialDBs.map((db, key) => (
-              <MenuItem key={key} value={db.id}>
-                <Box sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}>
-                  <img
-                    src={`https://raw.githubusercontent.com/docker/database-extension/main/ui/public/${db.image}.png`}
-                    alt={db.name}
-                    width={20}
-                  />
-                  {db.name}
-                </Box>
-              </MenuItem>
-            ))}
-          </TextField>
           <TextField
             id="port"
             label="Port"

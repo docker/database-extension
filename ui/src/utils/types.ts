@@ -1,21 +1,15 @@
 export interface IDBConnection {
-  id: string;
-  name: string;
-  connectionString: string;
+  containerId: string;
+  containerName: string;
   image: string;
+  connection: IConnection;
 }
 
 export interface IDatabaseProvider {
   id: string;
   name: string;
   image: string;
-  defaults: {
-    port: string;
-    username: string;
-    password?: string;
-    database: string;
-    envs?: { [id: string]: string };
-  }
+  defaults: IConnection
 }
 
 export interface IConnection {
@@ -23,4 +17,5 @@ export interface IConnection {
   username: string;
   password: string;
   database: string;
+  envs?: { [id: string]: string };
 }

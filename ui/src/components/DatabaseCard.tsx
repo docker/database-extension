@@ -7,6 +7,7 @@ import { useTestConnection } from "../hooks/useTestConnection";
 import { IDBConnection } from "../utils/types";
 import { CardMenu } from "./CardMenu";
 import DatabaseViewerDialog from "./DatabaseViewerDialog";
+import { EditDatabaseDialog } from "./EditConnection";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -76,10 +77,10 @@ export const DatabaseCard = ({ database }: { database: IDBConnection }) => {
             variant="h3"
             onClick={isConnected ? handleClickOpen : () => {}}
             sx={{
-              cursor: isConnected ? "pointer" : "",
+              cursor: isConnected ? "pointer" : "not-allowed",
             }}
           >
-            {database.name}
+            {database.containerName}
           </Typography>
         </CardContent>
       </Card>

@@ -7,12 +7,14 @@ import { Divider } from "@mui/material";
 import { Delete, Edit, Stop } from "@mui/icons-material";
 import EmptyConfirmationDialog from "./DeleteDBDialog";
 import { IDBConnection } from "../utils/types";
+import { EditDatabaseDialog } from "./EditConnection";
 
 const ITEM_HEIGHT = 48;
 
 export function CardMenu({ database }: { database: IDBConnection }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [editOpen, setEditOpen] = React.useState(false);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -50,7 +52,7 @@ export function CardMenu({ database }: { database: IDBConnection }) {
             },
           }}
         >
-          <MenuItem key={"Edit Database"} onClick={handleClose}>
+          <MenuItem key={"Edit Database"} onClick={() => setEditOpen(true)}>
             <Edit fontSize="small" sx={{ marginRight: 1 }} />
             {"Edit Database"}
           </MenuItem>
@@ -65,7 +67,18 @@ export function CardMenu({ database }: { database: IDBConnection }) {
           </MenuItem>
         </Menu>
       </div>
-      <EmptyConfirmationDialog open={dialogOpen} containerName={database.name} onClose={() => setDialogOpen(false)} />
+      <EmptyConfirmationDialog
+        open={dialogOpen}
+        containerName={database.containerName}
+        onClose={() => setDialogOpen(false)}
+      />
+      {editOpen && (
+        <EditDatabaseDialog
+          database={database}
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
     </>
   );
 }
