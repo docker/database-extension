@@ -1,23 +1,13 @@
-import { Box, Card, Slide, Typography } from "@mui/material";
-import { TransitionProps } from "@mui/material/transitions";
+import { Box, Card, Typography } from "@mui/material";
 import * as React from "react";
+import { useCurrentDatabaseContext } from "../CurrentDatabaseContext";
 import { IDBConnection } from "../utils/types";
-import DatabaseViewerDialog from "./DatabaseViewerDialog";
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 export const DatabaseCard = ({ database }: { database: IDBConnection }) => {
-  const [open, setOpen] = React.useState(false);
+  const { setDatabase } = useCurrentDatabaseContext();
 
   const handleClickOpen = () => {
-    setOpen(true);
+    setDatabase(database);
   };
 
   return (
@@ -32,15 +22,7 @@ export const DatabaseCard = ({ database }: { database: IDBConnection }) => {
         <Typography>Name: {database.name}</Typography>
         <Typography>Image: {database.image}</Typography>
       </Card>
-      { open && (
-        <DatabaseViewerDialog
-          database={database}
-          open={open}
-          onClose={() => setOpen(false)}
-          fullScreen
-          TransitionComponent={Transition}
-        />
-      )}
+
     </>
   );
 };

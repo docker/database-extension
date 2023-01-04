@@ -1,4 +1,4 @@
-import { isOfficialDB, getFromLocalStorage } from "../utils";
+import { isOfficialDB, getFromLocalStorage, getDefaultConnectionStringFromImage } from "../utils";
 import { IDBConnection } from "../utils/types";
 import { useContainers } from "./useContainers";
 
@@ -42,18 +42,4 @@ export const useGetDatabaseConnections = () => {
   return { databases, isLoading };
 };
 
-const getDefaultConnectionStringFromImage = (image: string) => {
-  switch (true) {
-    case image == "postgres":
-      return "pg://postgres:mysecretpassword@localhost:5432/postgres?sslmode=disable";
-    case image == "mysql":
-      return "mysql://root:mysecretpassword@localhost:3306";
-    case image == "mariadb":
-      return "mysql://root:mysecretpassword@localhost:3306";
-    case image.includes("clickhouse"):
-      return "ch://localhost:19000?username=default";
-    default:
-      return null;
-  }
-};
 
