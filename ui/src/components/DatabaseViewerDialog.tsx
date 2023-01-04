@@ -13,7 +13,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { ArrowBack, Folder, Storage, Close, Sync } from "@mui/icons-material";
 import { useGetDatabaseTables } from "../hooks/useGetDatabaseTables";
 import { NoRowsOverlay } from "./NoRowsOverlay";
@@ -42,27 +42,27 @@ export default function DatabaseViewerDialog(props: Props) {
     getDBTables();
   }, []);
 
-  const handleOpenTable = (event, nodeId) => {
+  const handleOpenTable = (event: React.SyntheticEvent, nodeId: string) => {
     if (!tabs.find((tab) => tab.table === nodeId)) {
-      setTabs(current => {
+      setTabs((current) => {
         if (current.length == MAX_TABS) {
           current.shift();
         }
-        return [...current, { name: nodeId, table: nodeId }]
+        return [...current, { name: nodeId, table: nodeId }];
       });
     }
 
     setSelectedTab(nodeId);
-  }
+  };
 
-  const handleChangeTab = (event, newValue) => {
+  const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
     setSelectedTab(newValue);
-  }
+  };
 
-  const handleCloseTab = (event, tab: string) => {
+  const handleCloseTab = (event: React.SyntheticEvent, tab: string) => {
     event.stopPropagation();
 
-    const index = tabs.findIndex(t => t.name === tab);
+    const index = tabs.findIndex((t) => t.name === tab);
 
     if (index == -1) {
       return;
@@ -84,8 +84,8 @@ export default function DatabaseViewerDialog(props: Props) {
       setSelectedTab(tabs[newlySelectedTabIndex].name);
     }
 
-    setTabs(tabs.filter(t => t.name !== tab));
-  }
+    setTabs(tabs.filter((t) => t.name !== tab));
+  };
 
   return (
     <div>
@@ -95,7 +95,9 @@ export default function DatabaseViewerDialog(props: Props) {
             <IconButton
               edge="start"
               color="inherit"
-              onClick={(e) => dialogProps.onClose && dialogProps.onClose(e, "backdropClick")}
+              onClick={(e) =>
+                dialogProps.onClose && dialogProps.onClose(e, "backdropClick")
+              }
               aria-label="close"
             >
               <ArrowBack />
@@ -111,17 +113,21 @@ export default function DatabaseViewerDialog(props: Props) {
               aria-label="sync"
             >
               <Sync
-                sx={loading ? {
-                  animation: "spin 500ms linear infinite",
-                  "@keyframes spin": {
-                    "0%": {
-                      transform: "rotate(360deg)",
-                    },
-                    "100%": {
-                      transform: "rotate(0deg)",
-                    },
-                  },
-                } : {}}
+                sx={
+                  loading
+                    ? {
+                        animation: "spin 500ms linear infinite",
+                        "@keyframes spin": {
+                          "0%": {
+                            transform: "rotate(360deg)",
+                          },
+                          "100%": {
+                            transform: "rotate(0deg)",
+                          },
+                        },
+                      }
+                    : {}
+                }
               />
             </IconButton>
           </Toolbar>
@@ -147,12 +153,8 @@ export default function DatabaseViewerDialog(props: Props) {
                 >
                   {tables.map((table, key) => (
                     <React.Fragment key={key}>
-                      <TreeItem nodeId={table} label={table}>
-                        <TreeItem nodeId="fake-table-2-ID" label="ID" />
-                        <TreeItem nodeId="fake-table-2-NAME" label="NAME" />
-                        <TreeItem nodeId="fake-table-2-DESCRIPTION" label="DESCRIPTION" />
-                      </TreeItem>
-                      { key < tables.length -1 && <Divider />}
+                      <TreeItem nodeId={table} label={table} />
+                      {key < tables.length - 1 && <Divider />}
                     </React.Fragment>
                   ))}
                 </TreeView>
@@ -160,30 +162,37 @@ export default function DatabaseViewerDialog(props: Props) {
             </Grid>
             <Grid item xs={9}>
               <>
-              { tabs.length === 0 && <NoRowsOverlay />}
-              { tabs.length > 0 && (
-                <TabContext value={selectedTab}>
-                  <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <TabList onChange={handleChangeTab}>
-                      { tabs.map((tab, key) => (
-                        <Tab
-                          key={key}
-                          component="div"
-                          icon={<IconButton size="small" onClick={(e) => handleCloseTab(e, tab.name)}><Close /></IconButton>}
-                          iconPosition="end"
-                          label={tab.name}
-                          value={tab.table}
-                        />
-                      ))}
-                    </TabList>
-                  </Box>
-                  { tabs.map((tab, key) => (
-                    <TabPanel value={tab.name} key={key}>
-                      <DBDataGrid />
-                    </TabPanel>
-                  ))}
-                </TabContext>
-              )}
+                {tabs.length === 0 && <NoRowsOverlay />}
+                {tabs.length > 0 && (
+                  <TabContext value={selectedTab}>
+                    <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                      <TabList onChange={handleChangeTab}>
+                        {tabs.map((tab, key) => (
+                          <Tab
+                            key={key}
+                            component="div"
+                            icon={
+                              <IconButton
+                                size="small"
+                                onClick={(e) => handleCloseTab(e, tab.name)}
+                              >
+                                <Close />
+                              </IconButton>
+                            }
+                            iconPosition="end"
+                            label={tab.name}
+                            value={tab.table}
+                          />
+                        ))}
+                      </TabList>
+                    </Box>
+                    {tabs.map((tab, key) => (
+                      <TabPanel value={tab.name} key={key}>
+                        <DBDataGrid />
+                      </TabPanel>
+                    ))}
+                  </TabContext>
+                )}
               </>
             </Grid>
           </Grid>
