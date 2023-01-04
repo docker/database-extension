@@ -1,14 +1,18 @@
+import { useEffect } from "react";
 import * as React from "react";
-import Dialog from "@mui/material/Dialog";
-import Divider from "@mui/material/Divider";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import { IDBConnection } from "../utils/types";
-import { Box, Card, Grid, Tab } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Tab,
+  Dialog,
+  DialogProps,
+  Divider,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { ArrowBack, Folder, Storage, Close, Sync } from "@mui/icons-material";
 import { useGetDatabaseTables } from "../hooks/useGetDatabaseTables";
@@ -17,44 +21,37 @@ import TreeView from "@mui/lab/TreeView";
 import TreeItem from "@mui/lab/TreeItem";
 import { DBDataGrid } from "./DBDataGrid";
 
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
-
 interface DataTab {
   name: string;
   table: string;
 }
 
-export default function DatabaseViewerDialog({
-  database,
-}: {
+interface Props extends DialogProps {
   database: IDBConnection;
-}) {
-  const [open, setOpen] = React.useState(false);
+}
+
+const MAX_TABS = 10;
+
+export default function DatabaseViewerDialog(props: Props) {
+  const { database, ...dialogProps } = props;
   const [tabs, setTabs] = React.useState<DataTab[]>([]);
   const [selectedTab, setSelectedTab] = React.useState<string>("");
   const { getDBTables, tables, loading } = useGetDatabaseTables(database);
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  useEffect(() => {
     getDBTables();
-  };
-
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  }, []);
 
   const handleOpenTable = (event, nodeId) => {
     if (!tabs.find((tab) => tab.table === nodeId)) {
-      setTabs(current => [...current, { name: nodeId, table: nodeId }]);
+      setTabs(current => {
+        if (current.length == MAX_TABS) {
+          current.shift();
+        }
+        return [...current, { name: nodeId, table: nodeId }]
+      });
     }
+
     setSelectedTab(nodeId);
   }
 
@@ -92,28 +89,13 @@ export default function DatabaseViewerDialog({
 
   return (
     <div>
-      <Card
-        variant="outlined"
-        onClick={handleClickOpen}
-        sx={{
-          padding: 2,
-        }}
-      >
-        <Typography>Name: {database.name}</Typography>
-        <Typography>Image: {database.image}</Typography>
-      </Card>
-      <Dialog
-        fullScreen
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={Transition}
-      >
+      <Dialog {...dialogProps}>
         <AppBar sx={{ position: "relative" }}>
           <Toolbar>
             <IconButton
               edge="start"
               color="inherit"
-              onClick={handleClose}
+              onClick={(e) => dialogProps.onClose && dialogProps.onClose(e, "backdropClick")}
               aria-label="close"
             >
               <ArrowBack />
@@ -164,14 +146,14 @@ export default function DatabaseViewerDialog({
                   onNodeSelect={handleOpenTable}
                 >
                   {tables.map((table, key) => (
-                    <>
+                    <React.Fragment key={key}>
                       <TreeItem nodeId={table} label={table}>
                         <TreeItem nodeId="fake-table-2-ID" label="ID" />
                         <TreeItem nodeId="fake-table-2-NAME" label="NAME" />
                         <TreeItem nodeId="fake-table-2-DESCRIPTION" label="DESCRIPTION" />
                       </TreeItem>
                       { key < tables.length -1 && <Divider />}
-                    </>
+                    </React.Fragment>
                   ))}
                 </TreeView>
               </Box>
@@ -186,6 +168,7 @@ export default function DatabaseViewerDialog({
                       { tabs.map((tab, key) => (
                         <Tab
                           key={key}
+                          component="div"
                           icon={<IconButton size="small" onClick={(e) => handleCloseTab(e, tab.name)}><Close /></IconButton>}
                           iconPosition="end"
                           label={tab.name}

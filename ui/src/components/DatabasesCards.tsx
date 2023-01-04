@@ -14,7 +14,7 @@ export const DatabasesCards = () => {
         mt: 2,
     }}>
       {databases.map((database) => (
-        <DatabaseViewerDialog key={database.id} database={database} />
+        <DatabaseCard key={database.id} database={database} />
       ))}
     </Box>
   );

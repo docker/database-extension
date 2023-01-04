@@ -24,6 +24,7 @@ export const useGetDatabaseTables = (connection: IDBConnection) => {
         "-c", // execute the command[
         "'\\dt'",
       ]);
+      console.log(result)
       const tables = result.parseJsonObject() as Table[];
       setTables(tables.map((table) => table.Name));
     } catch (err) {
