@@ -9,5 +9,26 @@
         "socket": "backend.sock"
       }
     }
+  },
+  "host": {
+    "binaries": [
+      {
+        "darwin": [
+          {
+            "path": "/host/darwin-amd64/usql"
+          }
+        ],
+        "linux": [
+          {
+            "path": "/host/linux-amd64/usql"
+          }
+        ],
+        "windows": [
+          {
+            "path": "/host/windows-amd64/usql.exe"
+          }
+        ]
+      }
+    ]
   }
 }
