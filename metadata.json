@@ -15,17 +15,17 @@
       {
         "darwin": [
           {
-            "path": "/host/darwin-amd64/usql"
+            "path": "/host/darwin/usql"
           }
         ],
         "linux": [
           {
-            "path": "/host/linux-amd64/usql"
+            "path": "/host/linux/usql"
           }
         ],
         "windows": [
           {
-            "path": "/host/windows-amd64/usql.exe"
+            "path": "/host/windows/usql.exe"
           }
         ]
       }

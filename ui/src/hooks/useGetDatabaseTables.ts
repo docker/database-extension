@@ -15,14 +15,16 @@ export const useGetDatabaseTables = (connection: IDBConnection) => {
     try {
       const result = await ddClient.extension.host?.cli.exec("usql", [
         connection.connectionString,
-        "-J -c",
-        "dt",
+        "-J", // json output
+        "-q", // quiet, do not print connection string
+        "-c", // execute the command[
+        "'\\dt'",
       ]);
       console.log(result);
       //   setTables(data);
     } catch (err) {
       console.log(err);
-      setError(err?.message);
+      //setError(err?.message);
     }
     setLoading(false);
   };
