@@ -1,5 +1,5 @@
 {
-  "icon": "docker.svg",
+  "icon": "icon.svg",
   "ui": {
     "dashboard-tab": {
       "title": "Databases",

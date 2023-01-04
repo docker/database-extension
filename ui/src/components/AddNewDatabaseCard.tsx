@@ -15,13 +15,13 @@ export const AddNewDatabaseCard = () => {
       <Card
         variant="outlined"
         sx={{
-          cursor: "default",
           width: "265px",
           height: "205px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          cursor: "pointer",
         }}
         onClick={handleClickOpen}
       >

@@ -2,15 +2,21 @@ import { createDockerDesktopClient } from "@docker/extension-api-client";
 import { ExecResult } from "@docker/extension-api-client-types/dist/v1";
 import {
   Box,
-  Button, CircularProgress,
-  Dialog, DialogActions,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
   DialogContent,
   DialogProps,
   DialogTitle,
   FormControl,
   InputLabel,
   MenuItem,
-  Select, SelectChangeEvent, Stack, TextField, useMediaQuery
+  Select,
+  SelectChangeEvent,
+  Stack,
+  TextField,
+  useMediaQuery,
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import React, { useCallback } from "react";
@@ -49,48 +55,54 @@ export const NewDatabaseDialog = (props: DialogProps) => {
   const close = () => {
     resetForm();
     onClose?.({}, "escapeKeyDown");
-  }
+  };
 
   const handleChangeProvider = (event: React.ChangeEvent<HTMLInputElement>) => {
     const provider = event.target.value as string;
     setProvider(provider);
-    const { defaults } = officialDBs.find(db => db.id === provider);
-    setDatabase(defaults.database);
-    setPort(defaults.port);
-    setUsername(defaults.username);
-    setPassword(defaults.password || "");
-    setIsValid(true);
-  }
+    const foundProvider = officialDBs.find((db) => db.id === provider);
+    if (foundProvider) {
+      setDatabase(foundProvider.defaults.database);
+      setPort(foundProvider.defaults.port);
+      setUsername(foundProvider.defaults.username);
+      setPassword(foundProvider.defaults.password || "");
+      setIsValid(true);
+    }
+  };
 
   const handleChangeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value as string);
-    setIsValid((provider && username && port && database) as boolean);
-  }
+    setIsValid(Boolean(provider && username && port && database));
+  };
 
   const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value as string);
-  }
+  };
 
   const handleChangePort = (event: React.ChangeEvent<HTMLInputElement>) => {
     // TODO: check port availability
     setPort(event.target.value as string);
-    setIsValid((provider && username && port && database) as boolean);
-  }
+    setIsValid(Boolean(provider && username && port && database));
+  };
 
   const handleChangeDatabase = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDatabase(event.target.value as string);
-    setIsValid((provider && username && port && database) as boolean);
-  }
+    setIsValid(Boolean(provider && username && port && database));
+  };
 
   const handleCreateDatabase = async () => {
-    const { image, defaults } = officialDBs.find((db) => db.id === provider);
+    const foundDB = officialDBs.find((db) => db.id === provider);
+    if (!foundDB) return;
+
+    const { image, defaults } = foundDB;
 
     let envs = [];
-    const values = { password, username, database }
+    const values = { password, username, database };
     if (defaults.envs) {
       for (const key in defaults.envs) {
         const value = defaults.envs[key];
         const variableName = value.replaceAll("%", "");
+        // @ts-expect-error type this
         const resolvedValue = values[variableName];
         envs.push("-e", `${key}=${resolvedValue}`);
       }
@@ -99,14 +111,20 @@ export const NewDatabaseDialog = (props: DialogProps) => {
     setCreatingContainer(true);
     let containerID = "";
     try {
-      const result = await ddClient.docker.cli.exec("run", ["-d", "-p", port, ...envs, image]);
+      const result = await ddClient.docker.cli.exec("run", [
+        "-d",
+        "-p",
+        port,
+        ...envs,
+        image,
+      ]);
       containerID = result.stdout.trim();
     } catch (e) {
-      console.log(e)
+      console.log(e);
       setCreatingContainer(false);
       setError((e as ExecResult).stderr);
 
-      return
+      return;
     }
 
     const connectionString = getConnectionString(provider, {
@@ -116,12 +134,18 @@ export const NewDatabaseDialog = (props: DialogProps) => {
       port: port.split(":")[0],
     });
 
+    if (!connectionString) return;
+
     let name = "";
     try {
-      const result = await ddClient.docker.cli.exec("inspect", ["-f", "{{.Name}}", containerID]);
+      const result = await ddClient.docker.cli.exec("inspect", [
+        "-f",
+        "{{.Name}}",
+        containerID,
+      ]);
       name = result.stdout.trim().replaceAll("/", "");
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
 
     const connection: IDBConnection = {
@@ -129,46 +153,78 @@ export const NewDatabaseDialog = (props: DialogProps) => {
       name,
       connectionString,
       image,
-    }
+    };
 
     setValue((current: IConnection[]) => [...current, connection]);
 
     setCreatingContainer(false);
-    setCurrentDatabase(connection)
+    setCurrentDatabase(connection);
     close();
-  }
+  };
 
   const { fullWidth = true, ...rest } = props;
   return (
     <Dialog fullWidth={fullWidth} onClose={close} {...other}>
-      <DialogTitle>
-        Create a new database
-      </DialogTitle>
+      <DialogTitle>Create a new database</DialogTitle>
       <DialogContent>
         <Stack gap={1.5} mt={2}>
           <TextField
             select
-            labelId="database-label"
+            // label="database-label"
             id="provider"
             value={provider}
             label="Select a database type"
             onChange={handleChangeProvider}
           >
-            { officialDBs.map((db, key) => (
-              <MenuItem key={key} value={db.id}>{db.name}</MenuItem>
+            {officialDBs.map((db, key) => (
+              <MenuItem key={key} value={db.id}>
+                {db.name}
+              </MenuItem>
             ))}
           </TextField>
-          <TextField id="port" label="Port" value={port} onChange={handleChangePort} variant="outlined" />
-          <TextField id="database" label="Database name" value={database} onChange={handleChangeDatabase} variant="outlined" />
-          <TextField id="username" label="Username" value={username} onChange={handleChangeUsername} variant="outlined" />
-          <TextField id="password" type="password" label="Password" value={password} onChange={handleChangePassword} variant="outlined" />
-          { error && <Box sx={{
-            padding: 1,
-            borderRadius: 1,
-            backgroundColor: (theme) => useDarkTheme
-              ? theme.palette.docker.red[200]
-              : theme.palette.docker.red[100] // red-100 should be "#FDEAEA" but it's not 🤷‍♂️
-          }}>{error}</Box> }
+          <TextField
+            id="port"
+            label="Port"
+            value={port}
+            onChange={handleChangePort}
+            variant="outlined"
+          />
+          <TextField
+            id="database"
+            label="Database name"
+            value={database}
+            onChange={handleChangeDatabase}
+            variant="outlined"
+          />
+          <TextField
+            id="username"
+            label="Username"
+            value={username}
+            onChange={handleChangeUsername}
+            variant="outlined"
+          />
+          <TextField
+            id="password"
+            type="password"
+            label="Password"
+            value={password}
+            onChange={handleChangePassword}
+            variant="outlined"
+          />
+          {error && (
+            <Box
+              sx={{
+                padding: 1,
+                borderRadius: 1,
+                backgroundColor: (theme) =>
+                  useDarkTheme
+                    ? theme.palette.docker.red[200]
+                    : theme.palette.docker.red[100], // red-100 should be "#FDEAEA" but it's not 🤷‍♂️
+              }}
+            >
+              {error}
+            </Box>
+          )}
         </Stack>
       </DialogContent>
       <DialogActions>
@@ -181,8 +237,10 @@ export const NewDatabaseDialog = (props: DialogProps) => {
           startIcon={
             creatingContainer ? <CircularProgress size={20} /> : <Add />
           }
-        >Create</Button>
+        >
+          Create
+        </Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};

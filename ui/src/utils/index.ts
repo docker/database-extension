@@ -1,4 +1,4 @@
-import { IConnection, IDatabase, IDatabaseProvider, IDBConnection } from "./types";
+import { IConnection, IDatabaseProvider } from "./types";
 
 export const officialDBs: IDatabaseProvider[] = [
   {
@@ -10,7 +10,7 @@ export const officialDBs: IDatabaseProvider[] = [
       username: "default",
       database: "default",
       password: "mysecretpassword",
-    }
+    },
   },
   {
     id: "postgres",
@@ -25,8 +25,8 @@ export const officialDBs: IDatabaseProvider[] = [
         POSTGRES_PASSWORD: "%password%",
         POSTGRES_USER: "%username%",
         POSTGRES_DB: "%database%",
-      }
-    }
+      },
+    },
   },
   {
     id: "mysql",
@@ -41,8 +41,8 @@ export const officialDBs: IDatabaseProvider[] = [
         MYSQL_ROOT_PASSWORD: "%password%",
         MYSQL_DATABASE: "%database%",
         MYSQL_USER: "%username%",
-      }
-    }
+      },
+    },
   },
   {
     id: "mariadb",
@@ -57,10 +57,10 @@ export const officialDBs: IDatabaseProvider[] = [
         MARIADB_ROOT_PASSWORD: "%password%",
         MARIADB_DATABASE: "%database%",
         MARIADB_USER: "%username%",
-      }
-    }
+      },
+    },
   },
-]
+];
 
 export const isOfficialDB = (image: string) => {
   console.log("is official", image);
@@ -96,16 +96,23 @@ export const setToLocalStorage = (key: string, value: string) => {
 
 export const getDefaultConnectionStringFromImage = (image: string) => {
   if (!isOfficialDB(image)) {
-    throw new Error(`Unsupported database ${image}`)
+    throw new Error(`Unsupported database ${image}`);
   }
-  const { id, defaults } = officialDBs.find((db) => image === db.image) || {};
+  const foundDB = officialDBs.find((db) => image === db.image);
+  if (!foundDB) return;
 
+  const { id, defaults } = foundDB;
+
+  // @ts-expect-error type this
   return getConnectionString(id, defaults);
 };
-export const getConnectionString = (provider: string, connection: IConnection) => {
+export const getConnectionString = (
+  provider: string,
+  connection: IConnection
+) => {
   const port = connection.port.split(":")[0];
 
-  let credentials = connection.username
+  let credentials = connection.username;
   if (connection.password) {
     credentials += `:${connection.password}`;
   }

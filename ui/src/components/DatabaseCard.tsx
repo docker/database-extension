@@ -45,7 +45,7 @@ export const DatabaseCard = ({ database }: { database: IDBConnection }) => {
         >
           <Box sx={{ textAlign: "center", paddingY: 2 }}>
             <img
-              src={`/${database.image}.png`}
+              src={`https://raw.githubusercontent.com/docker/database-extension/main/ui/public/${database.image}.png`}
               width="40px"
               style={{
                 filter: isConnected ? "none" : "grayscale(100%)",
@@ -74,9 +74,9 @@ export const DatabaseCard = ({ database }: { database: IDBConnection }) => {
           </Box>
           <Typography
             variant="h3"
-            onClick={handleClickOpen}
+            onClick={isConnected ? handleClickOpen : () => {}}
             sx={{
-              cursor: "pointer",
+              cursor: isConnected ? "pointer" : "",
             }}
           >
             {database.name}
