@@ -31,7 +31,7 @@ export default function DatabaseViewerDialog({
   database: IDBConnection;
 }) {
   const [open, setOpen] = React.useState(false);
-  const { getDBTables } = useGetDatabaseTables(database);
+  const { getDBTables, tables } = useGetDatabaseTables(database);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -92,18 +92,16 @@ export default function DatabaseViewerDialog({
                   defaultCollapseIcon={<Storage />}
                   defaultExpandIcon={<Storage />}
                 >
-                  <TreeItem nodeId="fake-table-1" label="Fake Table 1">
-                    <TreeItem nodeId="fake-table-1-ID" label="ID" />
-                    <TreeItem nodeId="fake-table-1-NAME" label="NAME" />
-                    <TreeItem nodeId="fake-table-1-DESCRIPTION" label="DESCRIPTION" />
-                  </TreeItem>
-                  <Divider />
-
-                  <TreeItem nodeId="fake-table-2" label="Fake Table 2">
-                    <TreeItem nodeId="fake-table-2-ID" label="ID" />
-                    <TreeItem nodeId="fake-table-2-NAME" label="NAME" />
-                    <TreeItem nodeId="fake-table-2-DESCRIPTION" label="DESCRIPTION" />
-                  </TreeItem>
+                  {tables.map((table, key) => (
+                    <>
+                      <TreeItem nodeId={table} label={table}>
+                        <TreeItem nodeId="fake-table-2-ID" label="ID" />
+                        <TreeItem nodeId="fake-table-2-NAME" label="NAME" />
+                        <TreeItem nodeId="fake-table-2-DESCRIPTION" label="DESCRIPTION" />
+                      </TreeItem>
+                      { key < tables.length -1 && <Divider />}
+                    </>
+                  ))}
                 </TreeView>
               </Box>
             </Grid>
