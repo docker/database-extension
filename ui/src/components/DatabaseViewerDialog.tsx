@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import * as React from "react";
-import { IDBConnection } from "../utils/types";
 import {
   Box,
   Grid,
@@ -16,6 +15,7 @@ import {
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { ArrowBack, Folder, Storage, Close, Sync } from "@mui/icons-material";
 import { useGetDatabaseTables } from "../hooks/useGetDatabaseTables";
+import { IDBConnection } from "../utils/types";
 import { NoRowsOverlay } from "./NoRowsOverlay";
 import TreeView from "@mui/lab/TreeView";
 import TreeItem from "@mui/lab/TreeItem";

@@ -9,7 +9,7 @@ interface Table {
   Name: string;
 }
 
-export const useGetDatabaseTables = (connection: IDBConnection) => {
+export const useGetDatabaseTables = (database: IDBConnection) => {
   const [tables, setTables] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export const useGetDatabaseTables = (connection: IDBConnection) => {
     setLoading(true);
     try {
       const result = await ddClient.extension.host!.cli.exec("usql", [
-        connection.connectionString,
+        database.connectionString,
         "-J", // json output
         "-q", // quiet, do not print connection string
         "-c", // execute the command[
