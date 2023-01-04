@@ -60,11 +60,11 @@ export function CardMenu({ database }: { database: IDBConnection }) {
             <Delete fontSize="small" sx={{ marginRight: 1 }} />
             {"Delete Database"}
           </MenuItem>
-          <Divider />
-          <MenuItem key={"Stop Container"} onClick={handleClose}>
+          {/* <Divider /> */}
+          {/* <MenuItem key={"Stop Container"} onClick={handleClose}>
             <Stop fontSize="small" sx={{ marginRight: 1 }} />
             {"Stop Container"}
-          </MenuItem>
+          </MenuItem> */}
         </Menu>
       </div>
       <EmptyConfirmationDialog

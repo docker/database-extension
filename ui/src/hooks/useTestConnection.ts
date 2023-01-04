@@ -33,7 +33,6 @@ export const useTestConnection = (database: IDBConnection) => {
       setIsConnected(false);
       setLoading(false);
       console.log(err);
-      ddClient.desktopUI.toast.error(err.stderr);
       return false;
       //setError(err?.message);
     }

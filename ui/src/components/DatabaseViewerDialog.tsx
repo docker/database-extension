@@ -13,13 +13,23 @@ import {
   Typography,
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { ArrowBack, Folder, Storage, Close, Sync } from "@mui/icons-material";
+import {
+  ArrowBack,
+  Folder,
+  Storage,
+  Close,
+  Sync,
+  ArrowUpward,
+  TerminalOutlined,
+} from "@mui/icons-material";
 import { useGetDatabaseTables } from "../hooks/useGetDatabaseTables";
 import { IDBConnection } from "../utils/types";
 import { NoRowsOverlay } from "./NoRowsOverlay";
 import TreeView from "@mui/lab/TreeView";
 import TreeItem from "@mui/lab/TreeItem";
 import { DBDataGrid } from "./DBDataGrid";
+import { ConsoleDialog } from "./ConsoleDialog";
+import { useSelectTable } from "../hooks/useSelectTable";
 
 interface DataTab {
   name: string;
@@ -34,9 +44,11 @@ const MAX_TABS = 10;
 
 export default function DatabaseViewerDialog(props: Props) {
   const { database, ...dialogProps } = props;
+  const [consoleOpen, setConsoleOpen] = React.useState(false);
   const [tabs, setTabs] = React.useState<DataTab[]>([]);
   const [selectedTab, setSelectedTab] = React.useState<string>("");
   const { getDBTables, tables, loading } = useGetDatabaseTables(database);
+  const { rows, columns, getTableRows } = useSelectTable(database, selectedTab);
 
   useEffect(() => {
     getDBTables();
@@ -89,16 +101,20 @@ export default function DatabaseViewerDialog(props: Props) {
 
   return (
     <div>
-      <Dialog {...dialogProps} sx={{
-        "& .MuiDialog-paper": {
-          border: 0,
-          backgroundColor: (theme) => theme.palette.background.default,
-        },
-        "& .MuiToolbar-root": {
-          backgroundColor: (theme) => theme.palette.background.default,
-          border: 0,
-        }
-      }}>
+      <Dialog
+        fullScreen
+        {...dialogProps}
+        sx={{
+          "& .MuiDialog-paper": {
+            border: 0,
+            backgroundColor: (theme) => theme.palette.background.default,
+          },
+          "& .MuiToolbar-root": {
+            backgroundColor: (theme) => theme.palette.background.default,
+            border: 0,
+          },
+        }}
+      >
         <AppBar sx={{ position: "relative" }}>
           <Toolbar>
             <IconButton
@@ -120,6 +136,7 @@ export default function DatabaseViewerDialog(props: Props) {
               color="inherit"
               onClick={() => {
                 getDBTables();
+                getTableRows();
               }}
               aria-label="sync"
             >
@@ -153,10 +170,14 @@ export default function DatabaseViewerDialog(props: Props) {
           }}
         >
           <Grid container gap={3} height="100%">
-            <Grid item xs sx={{
-              paddingY: 1,
-              background: (theme) => theme.palette.background.paper,
-            }}>
+            <Grid
+              item
+              xs
+              sx={{
+                paddingY: 1,
+                background: (theme) => theme.palette.background.paper,
+              }}
+            >
               <Box>
                 <TreeView
                   aria-label="file system navigator"
@@ -167,12 +188,17 @@ export default function DatabaseViewerDialog(props: Props) {
                   onNodeSelect={handleOpenTable}
                 >
                   {tables.map((table) => (
-                      <TreeItem key={table} nodeId={table} label={table} sx={{paddingY: 0.5}}/>
+                    <TreeItem
+                      key={table}
+                      nodeId={table}
+                      label={table}
+                      sx={{ paddingY: 0.5 }}
+                    />
                   ))}
                 </TreeView>
               </Box>
             </Grid>
-            <Grid xs={9}>
+            <Grid item xs={9}>
               <>
                 {tabs.length === 0 && <NoRowsOverlay />}
                 {tabs.length > 0 && (
@@ -210,7 +236,13 @@ export default function DatabaseViewerDialog(props: Props) {
                           padding: 0,
                         }}
                       >
-                        <DBDataGrid database={database} table={tab.name} />
+                        <DBDataGrid
+                          database={database}
+                          table={tab.name}
+                          rows={rows}
+                          columns={columns}
+                          refresh={getTableRows}
+                        />
                       </TabPanel>
                     ))}
                   </TabContext>
@@ -219,6 +251,29 @@ export default function DatabaseViewerDialog(props: Props) {
             </Grid>
           </Grid>
         </Box>
+        {!consoleOpen && (
+          <IconButton
+            aria-label="delete"
+            sx={{
+              position: "absolute",
+              bottom: 12,
+              right: 12,
+            }}
+            onClick={() => setConsoleOpen(true)}
+          >
+            <TerminalOutlined />
+          </IconButton>
+        )}
+        <ConsoleDialog
+          database={database}
+          open={consoleOpen}
+          hideBackdrop
+          onClose={() => setConsoleOpen(false)}
+          refresh={() => {
+            getDBTables();
+            getTableRows();
+          }}
+        />
       </Dialog>
     </div>
   );

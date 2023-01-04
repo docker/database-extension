@@ -8,6 +8,7 @@
     "@docker/extension-api-client": "0.3.2",
     "@emotion/react": "11.10.4",
     "@emotion/styled": "11.10.4",
+    "@monaco-editor/react": "^4.4.6",
     "@mui/icons-material": "^5.11.0",
     "@mui/lab": "^5.0.0-alpha.114",
     "@mui/material": "5.11.3",

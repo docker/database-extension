@@ -46,16 +46,40 @@ EOT
 
 FROM alpine
 LABEL org.opencontainers.image.title="Databases" \
-    org.opencontainers.image.description="Databases extension allows you to have a look at the content of all your databases running in a container." \
+    org.opencontainers.image.description="One-click connect to your existing MySQL, Postgres, etc. or create a new Database and view or edit its content." \
     org.opencontainers.image.vendor="Docker Inc." \
     com.docker.desktop.extension.api.version="0.3.2" \
-    com.docker.extension.screenshots="" \
-    com.docker.extension.detailed-description="" \
-    com.docker.extension.publisher-url="" \
-    com.docker.extension.additional-urls="" \
+    com.docker.extension.screenshots="[ \
+        {\"alt\": \"Home page - list of databases\", \"url\": \"https://raw.githubusercontent.com/docker/database-extension/main/docs/images/1.png\"}, \
+        {\"alt\": \"Add a new database\", \"url\": \"https://raw.githubusercontent.com/docker/database-extension/main/docs/images/2.png\"}, \
+        {\"alt\": \"See your database data\", \"url\": \"https://raw.githubusercontent.com/docker/database-extension/main/docs/images/3.png\"}, \
+        {\"alt\": \"Modify your data\", \"url\": \"https://raw.githubusercontent.com/docker/database-extension/main/docs/images/4.png\"}, \
+        {\"alt\": \"Query your database\", \"url\": \"https://raw.githubusercontent.com/docker/database-extension/main/docs/images/5.png\"}, \
+    ]" \
+    com.docker.extension.detailed-description="<p>The Databases Extension allows you to interact with any type of database you have currently running in a container. You can see its tables, query some data and modify it from the UI. It also allows you to create new databases.</p> \
+    <h2 id="-features">✨ See your existing databases</h2> \
+    <ul> \
+    <li>Easily connect to your existing databases or see if there are any connection issues.</li> \
+    <li>See all tables within your database.</li> \
+    <li>Query your database.</li> \
+    <li>Modify some data without leaving Docker Desktop!</li> \
+    </ul> \
+    <h2 id="-features2">✨ Create new databases</h2> \
+    <ul> \
+    <li>You can create new databases directly from Docker Desktop.</li> \
+    <li>Choose from a list of predefined databases.</li></ul> \
+    <li>Select the desired ports and connection string.</li> \
+    <li>Enjoy!</li> \
+    </ul> \
+    "\
+    com.docker.extension.publisher-url="https://www.docker.com/" \
+    com.docker.extension.additional-urls="[ \
+        {\"title\":\"Support\", \"url\":\"https://github.com/docker/database-extension/issues\"} \
+    ]" \
+    com.docker.desktop.extension.icon="https://raw.githubusercontent.com/docker/database-extension/main/icon.svg" \
     com.docker.extension.changelog=""
 
 COPY metadata.json .
-COPY docker.svg .
+COPY icon.svg .
 COPY --from=client-builder /ui/build ui
 COPY --from=dl /out /host

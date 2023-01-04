@@ -1,16 +1,20 @@
-import { DataGridPro, GridColumns, GridRowsProp } from "@mui/x-data-grid-pro";
-import { useSelectTable } from "../hooks/useSelectTable";
+import { DataGridPro, GridColumns } from "@mui/x-data-grid-pro";
 import { useUpdate } from "../hooks/useUpdate";
 import { IDBConnection } from "../utils/types";
 
 export function DBDataGrid({
   database,
   table,
+  rows,
+  columns,
+  refresh,
 }: {
   database: IDBConnection;
   table: string;
+  rows: unknown[];
+  columns: string[];
+  refresh: () => void;
 }) {
-  const { rows, columns, getTableRows } = useSelectTable(database, table);
   const { updateField } = useUpdate(database, table);
   const rowsWithInternalId = rows.map((row: any, index) => ({
     ...row,
@@ -40,7 +44,7 @@ export function DBDataGrid({
         const field = props.field;
         const { internalId, ...row } = modifiedRow;
         updateField(row, field, newValue).then(() => {
-          getTableRows();
+          refresh();
         });
       }}
     />
