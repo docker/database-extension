@@ -9,6 +9,7 @@ export const officialDBs: IDatabaseProvider[] = [
       port: "19000:9000",
       username: "default",
       database: "default",
+      password: "mysecretpassword",
     }
   },
   {
@@ -19,6 +20,7 @@ export const officialDBs: IDatabaseProvider[] = [
       port: "5432:5432",
       username: "postgres",
       database: "postgres",
+      password: "mysecretpassword",
     }
   },
   {
@@ -29,6 +31,7 @@ export const officialDBs: IDatabaseProvider[] = [
       port: "3306:3306",
       username: "root",
       database: "default",
+      password: "mysecretpassword",
     }
   },
   {
@@ -39,6 +42,7 @@ export const officialDBs: IDatabaseProvider[] = [
       port: "3306:3306",
       username: "root",
       database: "default",
+      password: "mysecretpassword",
     }
   },
 ]
@@ -84,15 +88,25 @@ export const getDefaultConnectionStringFromImage = (image: string) => {
   return getConnectionString(id, defaults);
 };
 export const getConnectionString = (provider: string, connection: IConnection) => {
-  const port = connection.port.split(":"[0]);
+  const port = connection.port.split(":")[0];
+
+  let credentials = connection.username
+  if (connection.password) {
+    credentials += `:${connection.password}`;
+  }
+
+  let separator = "@";
+  if (credentials === "") {
+    separator = "";
+  }
 
   switch (true) {
     case provider == "postgres":
-      return `pg://${connection.password}:${connection.username}@localhost:${port}/${connection.database}?sslmode=disable`;
+      return `pg://${credentials}${separator}localhost:${port}/${connection.database}?sslmode=disable`;
     case provider == "mysql":
-      return `mysql://${connection.password}:${connection.username}@localhost:${port}`;
+      return `mysql://${credentials}${separator}localhost:${port}`;
     case provider == "mariadb":
-      return `mysql://${connection.password}:${connection.username}@localhost:${port}`;
+      return `mysql://${credentials}${separator}localhost:${port}`;
     case provider.includes("clickhouse"):
       return "ch://localhost:19000?username=default";
   }
