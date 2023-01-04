@@ -62,7 +62,7 @@ export default function DatabaseViewerDialog({
   }
 
   const handleCloseTab = (event, tab: string) => {
-    event.preventDefault();
+    event.stopPropagation();
 
     const index = tabs.findIndex(t => t.name === tab);
 
@@ -77,14 +77,13 @@ export default function DatabaseViewerDialog({
       return;
     }
 
-
     if (selectedTab === tab) {
-      let newlySelectedTab = tabs[index + 1].name;
+      let newlySelectedTabIndex = index + 1;
       if (index === tabs.length - 1) {
-        newlySelectedTab = tabs[index - 1].name;
+        newlySelectedTabIndex = index - 1;
       }
 
-      setSelectedTab(newlySelectedTab);
+      setSelectedTab(tabs[newlySelectedTabIndex].name);
     }
 
     setTabs(tabs.filter(t => t.name !== tab));
