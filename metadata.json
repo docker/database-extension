@@ -4,10 +4,7 @@
     "dashboard-tab": {
       "title": "Databases",
       "src": "index.html",
-      "root": "ui",
-      "backend": {
-        "socket": "backend.sock"
-      }
+      "root": "ui"
     }
   },
   "host": {
