@@ -10,7 +10,7 @@ import { TransitionProps } from "@mui/material/transitions";
 import { IDBConnection } from "../utils/types";
 import { Box, Card, Grid, Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { ArrowBack, Folder, Storage, Close } from "@mui/icons-material";
+import { ArrowBack, Folder, Storage, Close, Sync } from "@mui/icons-material";
 import { useGetDatabaseTables } from "../hooks/useGetDatabaseTables";
 import { NoRowsOverlay } from "./NoRowsOverlay";
 import TreeView from "@mui/lab/TreeView";
@@ -39,12 +39,13 @@ export default function DatabaseViewerDialog({
   const [open, setOpen] = React.useState(false);
   const [tabs, setTabs] = React.useState<DataTab[]>([]);
   const [selectedTab, setSelectedTab] = React.useState<string>("");
-  const { getDBTables, tables } = useGetDatabaseTables(database);
+  const { getDBTables, tables, loading } = useGetDatabaseTables(database);
 
   const handleClickOpen = () => {
     setOpen(true);
     getDBTables();
   };
+
 
   const handleClose = () => {
     setOpen(false);
@@ -120,6 +121,27 @@ export default function DatabaseViewerDialog({
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               {database.name}
             </Typography>
+            <Box sx={{ flexGrow: 1 }} />
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={() => getDBTables()}
+              aria-label="sync"
+            >
+              <Sync
+                sx={loading ? {
+                  animation: "spin 500ms linear infinite",
+                  "@keyframes spin": {
+                    "0%": {
+                      transform: "rotate(360deg)",
+                    },
+                    "100%": {
+                      transform: "rotate(0deg)",
+                    },
+                  },
+                } : {}}
+              />
+            </IconButton>
           </Toolbar>
         </AppBar>
         <Box
