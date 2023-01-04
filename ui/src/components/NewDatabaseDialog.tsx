@@ -105,9 +105,17 @@ export const NewDatabaseDialog = (props: DialogProps) => {
       port: port.split(":")[0],
     });
 
+    let name = "";
+    try {
+      const result = await ddClient.docker.cli.exec("inspect", ["-f", "{{.Name}}", containerID]);
+      name = result.stdout.trim().replaceAll("/", "");
+    } catch (e) {
+      console.log(e)
+    }
+
     const connection: IDBConnection = {
       id: containerID,
-      name: "to fill later",
+      name,
       connectionString,
       image,
     }
