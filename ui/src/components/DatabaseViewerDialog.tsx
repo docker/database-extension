@@ -157,7 +157,7 @@ export default function DatabaseViewerDialog({
             </Grid>
             <Grid item xs={9}>
               <>
-              { tabs.length === 0 ?? <NoRowsOverlay />}
+              { tabs.length === 0 && <NoRowsOverlay />}
               { tabs.length > 0 && (
                 <TabContext value={selectedTab}>
                   <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
