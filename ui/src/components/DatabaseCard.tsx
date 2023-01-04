@@ -59,7 +59,7 @@ export const DatabaseCard = ({ database }: { database: IDBConnection }) => {
               right: 12,
             }}
           >
-            <CardMenu />
+            <CardMenu database={database} />
           </Box>
           <Box display="inline-flex" gap={0.5} alignItems="center">
             <Circle
