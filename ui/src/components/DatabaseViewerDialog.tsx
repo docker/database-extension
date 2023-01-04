@@ -8,8 +8,9 @@ import Typography from "@mui/material/Typography";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import { IDBConnection } from "../utils/types";
-import { Box, Card, Grid } from "@mui/material";
-import { ArrowBack, Folder, Storage } from "@mui/icons-material";
+import { Box, Card, Grid, Tab } from "@mui/material";
+import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { ArrowBack, Folder, Storage, Close } from "@mui/icons-material";
 import { useGetDatabaseTables } from "../hooks/useGetDatabaseTables";
 import { NoRowsOverlay } from "./NoRowsOverlay";
 import TreeView from "@mui/lab/TreeView";
@@ -25,12 +26,19 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="left" ref={ref} {...props} />;
 });
 
+interface DataTab {
+  name: string;
+  table: string;
+}
+
 export default function DatabaseViewerDialog({
   database,
 }: {
   database: IDBConnection;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [tabs, setTabs] = React.useState<DataTab[]>([]);
+  const [selectedTab, setSelectedTab] = React.useState<string>("");
   const { getDBTables, tables } = useGetDatabaseTables(database);
 
   const handleClickOpen = () => {
@@ -41,6 +49,46 @@ export default function DatabaseViewerDialog({
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleOpenTable = (event, nodeId) => {
+    if (!tabs.find((tab) => tab.table === nodeId)) {
+      setTabs(current => [...current, { name: nodeId, table: nodeId }]);
+    }
+    setSelectedTab(nodeId);
+  }
+
+  const handleChangeTab = (event, newValue) => {
+    setSelectedTab(newValue);
+  }
+
+  const handleCloseTab = (event, tab: string) => {
+    event.preventDefault();
+
+    const index = tabs.findIndex(t => t.name === tab);
+
+    if (index == -1) {
+      return;
+    }
+
+    if (tabs.length === 1) {
+      setTabs([]);
+      setSelectedTab("");
+
+      return;
+    }
+
+
+    if (selectedTab === tab) {
+      let newlySelectedTab = tabs[index + 1].name;
+      if (index === tabs.length - 1) {
+        newlySelectedTab = tabs[index - 1].name;
+      }
+
+      setSelectedTab(newlySelectedTab);
+    }
+
+    setTabs(tabs.filter(t => t.name !== tab));
+  }
 
   return (
     <div>
@@ -91,6 +139,8 @@ export default function DatabaseViewerDialog({
                   aria-label="file system navigator"
                   defaultCollapseIcon={<Storage />}
                   defaultExpandIcon={<Storage />}
+                  multiSelect={false}
+                  onNodeSelect={handleOpenTable}
                 >
                   {tables.map((table, key) => (
                     <>
@@ -106,8 +156,31 @@ export default function DatabaseViewerDialog({
               </Box>
             </Grid>
             <Grid item xs={9}>
-              <NoRowsOverlay />
-              {/* <DBDataGrid /> */}
+              <>
+              { tabs.length === 0 ?? <NoRowsOverlay />}
+              { tabs.length > 0 && (
+                <TabContext value={selectedTab}>
+                  <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <TabList onChange={handleChangeTab}>
+                      { tabs.map((tab, key) => (
+                        <Tab
+                          key={key}
+                          icon={<IconButton size="small" onClick={(e) => handleCloseTab(e, tab.name)}><Close /></IconButton>}
+                          iconPosition="end"
+                          label={tab.name}
+                          value={tab.table}
+                        />
+                      ))}
+                    </TabList>
+                  </Box>
+                  { tabs.map((tab, key) => (
+                    <TabPanel value={tab.name} key={key}>
+                      <DBDataGrid />
+                    </TabPanel>
+                  ))}
+                </TabContext>
+              )}
+              </>
             </Grid>
           </Grid>
         </Box>
