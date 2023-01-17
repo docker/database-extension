@@ -16,7 +16,7 @@ RUN npm run build
 
 FROM alpine AS dl
 WORKDIR /tmp
-RUN apk add --no-cache curl tar
+RUN apk add --no-cache curl tar unzip
 ARG TARGETARCH
 ARG USQL_VERSION=0.13.4
 ARG USQL_RELEASE_URL="https://github.com/xo/usql/releases/download/v${USQL_VERSION}/usql-${USQL_VERSION}"
@@ -37,9 +37,9 @@ EOT
 RUN <<EOT ash
     if [ "amd64" = "$TARGETARCH" ]; then
         mkdir -p /out/windows
-        curl -fSsLo /out/windows/usql.tar.bz2 "${USQL_RELEASE_URL}-windows-${TARGETARCH}.tar.bz2"
-        tar -xf /out/windows/usql.tar.bz2 -C /out/windows
-        chmod a+x /out/windows/usql
+        curl -fSsLo /out/windows/usql.zip "${USQL_RELEASE_URL}-windows-${TARGETARCH}.zip"
+        unzip /out/windows/usql.zip -d /out/windows
+        chmod a+x /out/windows/usql.exe
     fi
 EOT
 
